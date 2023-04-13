@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>number-baseball</title>
+</head>
+<body>
+  <form id="form">
+    <input type="text" id="input">
+    <button>check</button>
+  </form>
+  <div id="logs"></div>
+  <script>
+    const $input = document.querySelector('#input');
+    const $form = document.querySelector('#form');
+    const $logs = document.querySelector('#logs');
+
+    // Create an array of numbers from 1 to 9
+    const numbers = [];
+    for (let n = 0; n < 9; n += 1) {
+      numbers.push(n + 1);
+    }
+
+    // Generate a random 4-digit number using the numbers array
+    const answer = [];
+    for (let n = 0; n <= 3; n += 1) {
+      const index = Math.floor(Math.random() * (numbers.length));
+      answer.push(numbers[index]);
+      numbers.splice(index, 1);
+    }
+    console.log(answer);
+
+    // Create an empty array to store the player's guesses
+    const tries = [];
+
+    // Function to validate the player's input
+    function checkInput(input) {
+      if (input.length !== 4) {
+        return alert('insert 4digits');
+      }
+      if (new Set(input).size !== 4) {
+        return alert('no overlap please.');
+      }
+      if (tries.includes(input)) {
+        return alert('already tried result');
+      }
+      return true;
+    }
+
+    // Event listener for when the player submits a guess
+    $form.addEventListener('submit', (event) => {
+      event.preventDefault(); // Prevent the form from submitting and reloading the page
+      const value = $input.value;
+      $input.value = ''; // Clear the input field
+      if (!checkInput(value)) {
+        return; // If the input is not valid, do not continue with the game
+      }
+      if (answer.join('') === value) {
+        $logs.textContent = 'homerun!!'; // If the player guesses correctly, 
+        display a message and end the game
+        return;
+      }
+      if (tries.length >= 9) {
+        const message = document.createTextNode(`you lose
+        the answer is ${answer.join('')}`); // If the player has made 9 incorrect guesses, 
+        display a message with the correct answer and end the game
+        $logs.appendChild(message);
+        return;
+      }
+
+      // Check the player's guess for strikes and balls
+      let strike = 0;
+      let ball = 0;
+      for (let i = 0; i < answer.length; i++) {
+        const index = value.indexOf(answer[i]);
+        if (index > -1) {
+          if (index === i) {
+            strike += 1; // If the digit is in the correct position, add a strike
+          } else {
+            ball += 1; // If the digit is not in the correct position, add a ball
+          }
+        }
+      }
+
+      // Display the player's guess and the number of strikes and balls
+      $logs.append(`${value}: ${strike} strike ${ball} ball`, 
+      document.createElement('br'));
+
+      tries.push(value); // Add the player's guess to the tries array
+    });
+  </script>
+</body>
+</html>
